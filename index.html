@@ -750,16 +750,19 @@ https://p123-caldav.icloud.com/..."></textarea>
 
                 for (let i = 0; i < rows.length; i++) {
                     const row = rows[i].c;
-                    if (!row[0]) continue;
+                    if (!row || !row[0]) continue;
 
                     const completed = row[3]?.v === 'true';
                     if (completed) continue; // Skip completed items
 
-                    reminders.push({
-                        text: row[1]?.v || '',
-                        tag: row[2]?.v || 'todo',
-                        owner: row[5]?.v || 'dad'
-                    });
+                    // Columns: A=id, B=text, C=tag, D=completed, E=shared, F=owner
+                    const text = row[1]?.v || '';
+                    const tag = row[2]?.v || 'todo';
+                    const owner = row[5]?.v || 'dad';
+
+                    console.log('Reminder:', { text, tag, owner }); // Debug
+
+                    reminders.push({ text, tag, owner });
                 }
 
                 renderReminders(reminders.slice(0, 5), userIcons, tagNames);
@@ -780,9 +783,9 @@ https://p123-caldav.icloud.com/..."></textarea>
 
             list.innerHTML = reminders.map(r => `
                 <div class="reminder-item ${r.tag}">
-                    <span class="tag">${tagNames[r.tag] || r.tag}</span>
-                    <span class="text">${r.text}</span>
                     <span class="owner">${userIcons[r.owner] || '👤'}</span>
+                    <span class="text">${r.text}</span>
+                    <span class="tag">${tagNames[r.tag] || r.tag}</span>
                 </div>
             `).join('');
         }
