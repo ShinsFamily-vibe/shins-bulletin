@@ -738,10 +738,10 @@ https://p123-caldav.icloud.com/..."></textarea>
                 // Try to load from public Google Sheets (read-only)
                 const url = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:json`;
                 const response = await fetch(url);
-                const text = await response.text();
+                const responseText = await response.text();
 
                 // Parse the JSONP-like response
-                const json = JSON.parse(text.substring(47, text.length - 2));
+                const json = JSON.parse(responseText.substring(47, responseText.length - 2));
                 const rows = json.table.rows;
 
                 const reminders = [];
@@ -756,14 +756,14 @@ https://p123-caldav.icloud.com/..."></textarea>
                     if (completed) continue; // Skip completed items
 
                     // Columns: A=id, B=text, C=tag, D=completed, E=shared, F=owner
-                    const text = row[1]?.v || '';
+                    const memoText = row[1]?.v || '';
                     const tag = row[2]?.v || 'todo';
                     const owner = row[5]?.v || 'dad';
 
                     // Skip empty text
-                    if (!text.trim()) continue;
+                    if (!memoText.trim()) continue;
 
-                    reminders.push({ text, tag, owner });
+                    reminders.push({ text: memoText, tag, owner });
                 }
 
                 renderReminders(reminders.slice(0, 5), userIcons, tagNames);
