@@ -369,6 +369,93 @@
             padding: 30px;
         }
 
+        /* Calendar Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-overlay.hidden {
+            display: none;
+        }
+
+        .modal-content {
+            background: #1a1a2e;
+            border-radius: 20px;
+            padding: 30px;
+            width: 90%;
+            max-width: 500px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .modal-content h3 {
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+
+        .modal-content p {
+            font-size: 0.85rem;
+            color: #888;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .modal-content textarea {
+            width: 100%;
+            height: 150px;
+            padding: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            font-size: 0.9rem;
+            font-family: monospace;
+            resize: vertical;
+            margin-bottom: 20px;
+        }
+
+        .modal-content textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .modal-buttons button {
+            padding: 10px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+
+        .modal-buttons .cancel-btn {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+        }
+
+        .modal-buttons .save-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+        }
+
+        .modal-buttons button:hover {
+            transform: translateY(-2px);
+        }
+
         /* Greeting */
         .greeting {
             font-size: 2rem;
@@ -507,6 +594,28 @@
                 <div class="news-list" id="newsList">
                     <div class="news-empty">Loading news...</div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Calendar Modal -->
+    <div class="modal-overlay hidden" id="calendarModal">
+        <div class="modal-content">
+            <h3>📅 Set Google Calendars</h3>
+            <p>
+                Enter Calendar IDs (one per line):<br><br>
+                <strong>How to find Calendar ID:</strong><br>
+                1. Google Calendar → Settings (gear icon)<br>
+                2. Click calendar name on left<br>
+                3. Scroll to "Integrate calendar"<br>
+                4. Copy "Calendar ID"
+            </p>
+            <textarea id="calendarInput" placeholder="example@gmail.com
+family@group.calendar.google.com
+https://p123-caldav.icloud.com/..."></textarea>
+            <div class="modal-buttons">
+                <button class="cancel-btn" onclick="closeCalendarModal()">Cancel</button>
+                <button class="save-btn" onclick="saveCalendars()">Save</button>
             </div>
         </div>
     </div>
@@ -702,33 +811,26 @@
         function promptCalendarId() {
             const savedCalendars = localStorage.getItem('shins_calendars');
             const currentCalendars = savedCalendars ? JSON.parse(savedCalendars) : [];
-            const currentList = currentCalendars.join('\n');
-
-            const input = prompt(
-                'Enter Google Calendar IDs (one per line):\n\n' +
-                'How to find Calendar ID:\n' +
-                '1. Google Calendar → Settings (gear icon)\n' +
-                '2. Click your calendar name\n' +
-                '3. Scroll to "Integrate calendar"\n' +
-                '4. Copy "Calendar ID"\n\n' +
-                'Examples:\n' +
-                'dad@gmail.com\n' +
-                'mom@gmail.com\n' +
-                'family123@group.calendar.google.com',
-                currentList
-            );
-
-            if (input !== null) {
-                const calendars = input.split('\n')
-                    .map(c => c.trim())
-                    .filter(c => c.length > 0);
-
-                if (calendars.length > 0) {
-                    localStorage.setItem('shins_calendars', JSON.stringify(calendars));
-                    setCalendarEmbed(calendars);
-                }
-            }
+            document.getElementById('calendarInput').value = currentCalendars.join('\n');
+            document.getElementById('calendarModal').classList.remove('hidden');
             return false;
+        }
+
+        function closeCalendarModal() {
+            document.getElementById('calendarModal').classList.add('hidden');
+        }
+
+        function saveCalendars() {
+            const input = document.getElementById('calendarInput').value;
+            const calendars = input.split('\n')
+                .map(c => c.trim())
+                .filter(c => c.length > 0);
+
+            if (calendars.length > 0) {
+                localStorage.setItem('shins_calendars', JSON.stringify(calendars));
+                setCalendarEmbed(calendars);
+            }
+            closeCalendarModal();
         }
 
         loadCalendar();
