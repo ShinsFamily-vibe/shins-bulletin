@@ -760,7 +760,8 @@ https://p123-caldav.icloud.com/..."></textarea>
                     const tag = row[2]?.v || 'todo';
                     const owner = row[5]?.v || 'dad';
 
-                    console.log('Reminder:', { text, tag, owner }); // Debug
+                    // Skip empty text
+                    if (!text.trim()) continue;
 
                     reminders.push({ text, tag, owner });
                 }
